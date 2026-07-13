@@ -54,7 +54,8 @@
             "pages": [
               "providers/overview",
               "providers/custom",
-              "providers/copilot"
+              "providers/copilot",
+              "providers/grok"
             ]
           },
           {

@@ -7,6 +7,7 @@ export { deepseek } from "./deepseek.js";
 export { fireworks } from "./fireworks.js";
 export { githubModels } from "./github-models.js";
 export { google } from "./google.js";
+export { grok } from "./grok.js";
 export { groq } from "./groq.js";
 export { llmgateway } from "./llmgateway.js";
 export { lmstudio } from "./lmstudio.js";
@@ -32,6 +33,7 @@ import { deepseek } from "./deepseek.js";
 import { fireworks } from "./fireworks.js";
 import { githubModels } from "./github-models.js";
 import { google } from "./google.js";
+import { grok } from "./grok.js";
 import { groq } from "./groq.js";
 import { llmgateway } from "./llmgateway.js";
 import { lmstudio } from "./lmstudio.js";
@@ -55,6 +57,7 @@ const BUILTIN_PROVIDERS: ProviderDefinition[] = [
   vercelGatewayProvider,
   openai,
   xai,
+  grok,
   google,
   groq,
   deepseek,

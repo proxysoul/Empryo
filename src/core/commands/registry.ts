@@ -7,6 +7,7 @@ import { matchConfigPrefix, register as registerConfig } from "./config.js";
 import { matchContextPrefix, register as registerContext } from "./context.js";
 import { register as registerDebug } from "./debug.js";
 import { matchGitPrefix, register as registerGit } from "./git.js";
+import { register as registerGrok } from "./grok.js";
 import { register as registerHearth } from "./hearth.js";
 import { register as registerHooks } from "./hooks.js";
 import { matchNavPrefix, register as registerNavigation } from "./navigation.js";
@@ -31,6 +32,7 @@ registerStorage(commandMap);
 registerSecurity(commandMap);
 registerClaims(commandMap);
 registerCodex(commandMap);
+registerGrok(commandMap);
 registerHearth(commandMap);
 registerHooks(commandMap);
 registerCheckpoint(commandMap);
@@ -370,6 +372,41 @@ const COMMAND_DEFS: CommandDef[] = [
     desc: "Show Codex login status",
     category: "Models",
     tags: ["codex", "auth", "status", "account"],
+  },
+  {
+    cmd: "/grok",
+    ic: "model",
+    desc: "Show Grok (subscription) login status",
+    category: "Models",
+    tags: ["auth", "oauth", "grok", "xai", "status", "account"],
+  },
+  {
+    cmd: "/grok login",
+    ic: "model",
+    desc: "Log in to Grok with SuperGrok / X Premium+",
+    category: "Models",
+    tags: ["auth", "oauth", "grok", "xai", "login"],
+  },
+  {
+    cmd: "/grok logout",
+    ic: "model",
+    desc: "Log out of the Grok subscription session",
+    category: "Models",
+    tags: ["auth", "oauth", "grok", "xai", "logout", "account"],
+  },
+  {
+    cmd: "/grok switch",
+    ic: "model",
+    desc: "Switch to a different Grok account",
+    category: "Models",
+    tags: ["auth", "oauth", "grok", "xai", "switch", "account"],
+  },
+  {
+    cmd: "/grok status",
+    ic: "model",
+    desc: "Show Grok (subscription) login status",
+    category: "Models",
+    tags: ["auth", "oauth", "grok", "xai", "status", "account"],
   },
   {
     cmd: "/model-scope",

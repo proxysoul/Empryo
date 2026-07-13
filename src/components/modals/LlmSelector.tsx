@@ -110,6 +110,11 @@ export function LlmSelector({ visible, activeModel, onSelect, onClose }: Props) 
     // "no key — press Enter to add" would be misleading.
     const visibleConfigs = PROVIDER_CONFIGS.filter((cfg) => {
       if (cfg.envVar !== "") return true; // key-based provider — always show
+      // Subscription providers with interactive login (Codex, Grok, …) must stay
+      // visible when logged out so Enter can run onRequestAuth. Only hide
+      // envVar-less providers that are purely auto-detected (proxy addon,
+      // Ollama daemon, etc.).
+      if (getProvider(cfg.id)?.onRequestAuth) return true;
       const avail = availability.get(cfg.id);
       // Hide only when explicitly unavailable. `undefined` (still checking) keeps it visible.
       return avail !== false;

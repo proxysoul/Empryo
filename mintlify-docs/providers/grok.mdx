@@ -1,0 +1,86 @@
+---
+title: "Grok (subscription)"
+description: "Use SuperGrok / X Premium+ with SoulForge via device-code OAuth — no xAI API key."
+icon: "bolt"
+---
+
+If you pay for **SuperGrok** or **X Premium+**, SoulForge can use Grok models through xAI's OAuth device-code flow. No API key, no separate progrok process.
+
+This is separate from the built-in **Grok** provider (`xai`), which uses a paid [console.x.ai](https://console.x.ai) API key.
+
+<Warning>
+Unofficial OAuth client shared by community tools (progrok / Hermes / OpenClaw lineage). Not endorsed by xAI. Terms of service and client acceptance may change without notice. Use at your own risk.
+</Warning>
+
+## Requirements
+
+- Active **SuperGrok** or **X Premium+** subscription that includes Grok API access via OAuth
+- Network access to `auth.x.ai` and `api.x.ai`
+
+## Setup
+
+<Steps>
+  <Step title="Log in inside SoulForge">
+    Run:
+
+    ```text
+    /grok login
+    ```
+
+    Or open the model picker (`Ctrl+L`), select **Grok (subscription)**, and press Enter when it shows *login required*.
+  </Step>
+
+  <Step title="Complete device-code auth">
+    SoulForge shows a URL and a short user code. Open the URL in a browser, sign in with your X / xAI account, and enter the code.
+  </Step>
+
+  <Step title="Pick a model">
+    Press `Ctrl+L`, choose **Grok (subscription)**, then a model such as `grok-4.3`.
+  </Step>
+</Steps>
+
+## Commands
+
+| Command | What it does |
+|---------|----------------|
+| `/grok` / `/grok status` | Show login status and account email (if present) |
+| `/grok login` | Start device-code OAuth |
+| `/grok logout` | Delete stored tokens |
+| `/grok switch` | Logout then login again |
+
+Tokens are stored at `{configDir}/xai-oauth.json` with mode `0600` (typically `~/.soulforge/xai-oauth.json` on Linux/macOS).
+
+## How this differs from other Grok paths
+
+| Path | Auth | When to use |
+|------|------|-------------|
+| **Grok (subscription)** (`grok/*`) | SuperGrok OAuth device-code | You have SuperGrok / X Premium+ and want no API key |
+| **Grok** (`xai/*`) | `XAI_API_KEY` from console.x.ai | Paid API usage, teams, automation |
+| **Proxy** `/proxy` + xAI login | CLIProxyAPI account | You already use the proxy addon for multiple chat subs |
+| **Custom progrok** | Your own OpenAI-compatible base URL | Advanced / VPN sidecar setups |
+
+## Regional availability
+
+Not every Grok model is offered in every country on the subscription path. If a model is missing from the picker or the API returns a region error, try a VPN to a supported region (often the US) and re-check with `Ctrl+L`.
+
+## Headless
+
+Headless / CI needs a prior interactive login so `xai-oauth.json` already exists. There is no non-interactive device-code printer in v1.
+
+```bash
+soulforge --headless --model grok/grok-4.3 "explain this file"
+```
+
+## Legal / risk notes
+
+<AccordionGroup>
+  <Accordion title="Unofficial client">
+    SoulForge uses a community OAuth client id also used by progrok and related tools. xAI may revoke or rate-limit unofficial clients.
+  </Accordion>
+  <Accordion title="Subscription vs API">
+    OAuth access is tied to your subscription tier and rate limits. This is not unlimited API access and is not a substitute for a console API key when you need guaranteed paid capacity.
+  </Accordion>
+  <Accordion title="Token storage">
+    Refresh tokens live on disk under your SoulForge config directory. Use `/grok logout` on shared machines.
+  </Accordion>
+</AccordionGroup>

@@ -140,6 +140,7 @@ const PROVIDER_CONSTRAINTS: Record<string, ProviderConstraints> = {
   proxy: GATEWAY_FULL,
   openai: OPENAI_FULL,
   xai: XAI_FULL,
+  grok: XAI_FULL,
   google: GOOGLE_FULL,
   deepseek: DEEPSEEK_FULL,
   openrouter: OPENROUTER_FULL,
@@ -220,7 +221,7 @@ export function detectModelFamily(modelId: string): ModelFamily {
   // Direct providers — no guessing needed
   if (provider === "anthropic") return "claude";
   if (provider === "openai") return "openai";
-  if (provider === "xai") return "xai";
+  if (provider === "xai" || provider === "grok") return "xai";
   if (provider === "google") return "google";
   if (provider === "deepseek") return isDeepSeekReasoner(base) ? "deepseek-reasoner" : "deepseek";
 
