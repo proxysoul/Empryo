@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
+import { chmodSync, existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import {
   authFilePath,
@@ -58,13 +58,14 @@ export function saveTokens(input: SaveTokenInput): void {
   const data: TokenData = {
     accessToken: input.accessToken,
     refreshToken: input.refreshToken ?? existing?.refreshToken,
-    expiresAt: input.expiresIn ? Date.now() + input.expiresIn * 1000 : existing?.expiresAt,
+    expiresAt: input.expiresIn !== undefined ? Date.now() + input.expiresIn * 1000 : undefined,
     tokenEndpoint: input.tokenEndpoint ?? existing?.tokenEndpoint,
     idToken: input.idToken ?? existing?.idToken,
     email: input.email ?? extractEmailFromIdToken(input.idToken) ?? existing?.email,
   };
 
   writeFileSync(path, `${JSON.stringify(data, null, 2)}\n`, { mode: 0o600 });
+  chmodSync(path, 0o600);
 }
 
 export function loadTokens(): TokenData | null {
@@ -81,8 +82,9 @@ export function loadTokens(): TokenData | null {
 export function deleteTokens(): void {
   try {
     unlinkSync(authFilePath());
-  } catch {
-    /* ignore missing file */
+  } catch (error) {
+    if (error instanceof Error && "code" in error && error.code === "ENOENT") return;
+    throw error;
   }
 }
 
@@ -126,6 +128,9 @@ export async function getValidBearer(): Promise<string> {
 
   if (refreshInflight) return refreshInflight;
 
+  const initialAccessToken = tokens.accessToken;
+  const initialRefreshToken = refreshToken;
+
   refreshInflight = (async () => {
     try {
       const res = await fetch(tokenEndpoint, {
@@ -150,15 +155,21 @@ export async function getValidBearer(): Promise<string> {
         );
       }
 
-      saveTokens({
-        accessToken: refreshed.access_token,
-        refreshToken:
-          typeof refreshed.refresh_token === "string" ? refreshed.refresh_token : refreshToken,
-        expiresIn: typeof refreshed.expires_in === "number" ? refreshed.expires_in : undefined,
-        idToken: typeof refreshed.id_token === "string" ? refreshed.id_token : undefined,
-        tokenEndpoint,
-        email: tokens.email,
-      });
+      const current = loadTokens();
+      const sessionStillMatches =
+        current?.accessToken === initialAccessToken &&
+        current?.refreshToken === initialRefreshToken;
+      if (sessionStillMatches) {
+        saveTokens({
+          accessToken: refreshed.access_token,
+          refreshToken:
+            typeof refreshed.refresh_token === "string" ? refreshed.refresh_token : refreshToken,
+          expiresIn: typeof refreshed.expires_in === "number" ? refreshed.expires_in : undefined,
+          idToken: typeof refreshed.id_token === "string" ? refreshed.id_token : undefined,
+          tokenEndpoint,
+          email: tokens.email,
+        });
+      }
 
       return refreshed.access_token;
     } finally {

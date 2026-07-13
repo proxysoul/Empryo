@@ -185,6 +185,10 @@ describe("detectModelFamily", () => {
     expect(detectModelFamily("xai/grok-4-fast")).toBe("xai");
   });
 
+  test("direct grok → xai", () => {
+    expect(detectModelFamily("grok/grok-4-fast")).toBe("xai");
+  });
+
   test("direct deepseek → deepseek", () => {
     expect(detectModelFamily("deepseek/deepseek-chat")).toBe("deepseek");
   });

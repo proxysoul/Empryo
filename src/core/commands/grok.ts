@@ -99,23 +99,42 @@ async function handleGrokStatus(_input: string, ctx: CommandContext): Promise<vo
 
 async function handleGrokLogout(_input: string, ctx: CommandContext): Promise<void> {
   const theme = getThemeTokens();
-  deleteTokens();
+  let result: { ok: boolean; message: string };
+  try {
+    deleteTokens();
+    result = { ok: true, message: "Logged out of Grok (subscription)." };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    result = { ok: false, message: `Logout failed: ${message}` };
+  }
   await refreshGrokState();
   const usingGrok = ctx.chat.activeModel.startsWith("grok/");
   ctx.openInfoPopup({
     title: "Grok Logout",
     icon: providerIcon("grok"),
-    lines: getGrokLogoutPopupLines(
-      { ok: true, message: "Logged out of Grok (subscription)." },
-      usingGrok,
-      theme,
-    ),
+    lines: getGrokLogoutPopupLines(result, usingGrok, theme),
   });
 }
 
 async function handleGrokSwitch(_input: string, ctx: CommandContext): Promise<void> {
   const theme = getThemeTokens();
-  deleteTokens();
+  try {
+    deleteTokens();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    ctx.openInfoPopup({
+      title: "Grok Switch Account",
+      icon: providerIcon("grok"),
+      lines: [
+        {
+          type: "text",
+          label: `Could not log out of the current Grok account: ${message}`,
+          color: theme.brandSecondary,
+        },
+      ],
+    });
+    return;
+  }
   await refreshGrokState();
   ctx.openInfoPopup({
     title: "Grok Switch Account",

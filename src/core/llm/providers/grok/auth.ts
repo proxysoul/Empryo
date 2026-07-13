@@ -168,6 +168,11 @@ export async function requestGrokAuth(): Promise<void> {
     });
   } catch (error) {
     finished = true;
+    if (error instanceof Error && error.name === "AbortError") {
+      // User cancellation is already handled by the onClose abort; don't
+      // reopen the popup with an error message after the user pressed Esc.
+      return;
+    }
     const message = error instanceof Error ? error.message : String(error);
     lines.push(...wrapInfoText(`Error: ${message}`, theme.brandSecondary));
     updatePopup();

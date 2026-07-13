@@ -7,7 +7,7 @@ import { getValidBearer, isLoggedIn } from "./token-store.js";
 
 interface XaiModel {
   id: string;
-  context_window?: number;
+  context_length?: number;
 }
 
 function createGrokOAuthFetch(): ReasoningFetchFn {
@@ -83,7 +83,7 @@ export const grok: ProviderDefinition = {
       const result: ProviderModelInfo[] = [];
       for (const m of data.data) {
         if (!m.id.includes("embed")) {
-          result.push({ id: m.id, name: m.id, contextWindow: m.context_window });
+          result.push({ id: m.id, name: m.id, contextWindow: m.context_length });
         }
       }
       return result;

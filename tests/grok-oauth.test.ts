@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -24,6 +24,7 @@ import {
   loginWithDeviceCode,
   saveTokens,
 } from "../src/core/llm/providers/grok.js";
+import { CommandHandler } from "../src/core/commands/types.js";
 
 const originalFetch = globalThis.fetch;
 const originalHome = process.env.HOME;
@@ -119,6 +120,7 @@ describe("grok token store", () => {
     const path = join(tempHome, ".soulforge", "xai-oauth.json");
     const raw = readFileSync(path, "utf8");
     expect(raw).toContain("access-1");
+    expect(statSync(path).mode & 0o777).toBe(0o600);
 
     deleteTokens();
     expect(loadTokens()).toBeNull();
@@ -326,7 +328,7 @@ describe("grok availability + models", () => {
 
 describe("grok commands", () => {
   test("registers status, login, logout, and switch commands", () => {
-    const map = new Map();
+    const map = new Map<string, CommandHandler>();
     register(map);
     expect(map.has("/grok")).toBe(true);
     expect(map.has("/grok status")).toBe(true);

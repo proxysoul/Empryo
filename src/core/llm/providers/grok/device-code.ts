@@ -108,7 +108,9 @@ export async function loginWithDeviceCode(options: LoginWithDeviceCodeOptions = 
         client_id: XAI_OAUTH_CLIENT_ID,
         device_code: dc.device_code,
       }),
-      signal: signal ?? AbortSignal.timeout(XAI_OAUTH_FETCH_TIMEOUT_MS),
+      signal: signal
+        ? AbortSignal.any([signal, AbortSignal.timeout(XAI_OAUTH_FETCH_TIMEOUT_MS)])
+        : AbortSignal.timeout(XAI_OAUTH_FETCH_TIMEOUT_MS),
     });
 
     if (pollRes.ok) {

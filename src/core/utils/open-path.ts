@@ -35,10 +35,11 @@ export function openPath(pathOrUrl: string): boolean {
     // Supports bare commands ("brave") and %s templates ("brave %s").
     const browser = process.env.BROWSER?.trim();
     if (browser) {
-      const parts = browser.split(/\s+/).filter(Boolean);
-      if (parts.length > 0) {
-        const args = parts.map((p) => (p === "%s" ? pathOrUrl : p));
-        if (!parts.includes("%s")) args.push(pathOrUrl);
+      const words = parseShellWords(browser);
+      if (words.length > 0) {
+        const hasPlaceholder = words.some((w) => w.includes("%s"));
+        const args = words.map((w) => (hasPlaceholder ? w.replaceAll("%s", pathOrUrl) : w));
+        if (!hasPlaceholder) args.push(pathOrUrl);
         const cmd = args[0];
         if (cmd) {
           Bun.spawn([cmd, ...args.slice(1)], { stdio: ["ignore", "ignore", "ignore"] });
@@ -51,4 +52,45 @@ export function openPath(pathOrUrl: string): boolean {
   } catch {
     return false;
   }
+}
+function parseShellWords(input: string): string[] {
+  const words: string[] = [];
+  let current = "";
+  let quote: string | null = null;
+  let escaped = false;
+
+  for (const ch of input) {
+    if (escaped) {
+      current += ch;
+      escaped = false;
+      continue;
+    }
+    if (ch === "\\") {
+      escaped = true;
+      continue;
+    }
+    if (quote) {
+      if (ch === quote) {
+        quote = null;
+      } else {
+        current += ch;
+      }
+      continue;
+    }
+    if (ch === '"' || ch === "'") {
+      quote = ch;
+      continue;
+    }
+    if (/\s/.test(ch)) {
+      if (current) {
+        words.push(current);
+        current = "";
+      }
+      continue;
+    }
+    current += ch;
+  }
+
+  if (current) words.push(current);
+  return words;
 }
