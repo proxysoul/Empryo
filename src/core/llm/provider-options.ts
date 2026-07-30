@@ -331,8 +331,7 @@ function getModelCapabilities(modelId: string): ModelCapabilities {
       /glm-(4\.[5-9]|[5-9])/.test(base) ||
       /kimi-(k2|thinking)/.test(base) ||
       /gpt-oss/.test(base) ||
-      /deepseek-r1/.test(base) ||
-      /minimax-m[2-9]/.test(base);
+      /deepseek-r1/.test(base);
     return {
       ...BASE,
       compatReasoning: isCompatReasoning,

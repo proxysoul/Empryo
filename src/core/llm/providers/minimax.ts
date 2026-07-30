@@ -1,9 +1,22 @@
-import { createMinimax } from "vercel-minimax-ai-provider";
-import { loadConfig } from "../../../config/index.js";
+import { createAnthropic } from "@ai-sdk/anthropic";
 import { getProviderApiKey } from "../../secrets.js";
-import { getCompatReasoningBody } from "../compat-reasoning.js";
-import { createSessionFetchWrapper } from "./reasoning-fetch.js";
+import { withSessionHeaders } from "./reasoning-fetch.js";
 import type { ProviderDefinition, ProviderModelInfo } from "./types.js";
+
+// Regional Anthropic-compatible endpoints for MiniMax.
+// global_en: https://platform.minimax.io — international account keys.
+// cn_zh:     https://platform.minimaxi.com — China account keys.
+// An account's key only validates against its own region, so the active
+// region is resolved at createModel time (global_en default, cn_zh via env).
+const ANTHROPIC_BASE_URLS: Record<string, string> = {
+  global_en: "https://api.minimax.io/anthropic",
+  cn_zh: "https://api.minimaxi.com/anthropic",
+};
+
+function resolveMinimaxBaseURL(): string {
+  const region = (process.env.MINIMAX_REGION ?? "global_en").toLowerCase();
+  return ANTHROPIC_BASE_URLS[region] ?? ANTHROPIC_BASE_URLS.global_en ?? "";
+}
 
 export const minimax: ProviderDefinition = {
   id: "minimax",
@@ -20,11 +33,13 @@ export const minimax: ProviderDefinition = {
     if (!apiKey) {
       throw new Error("MINIMAX_API_KEY is not set");
     }
-    const reasoningBody = getCompatReasoningBody(`minimax/${modelId}`, loadConfig());
-    const reasoningFetch = createSessionFetchWrapper(reasoningBody);
-    return createMinimax({
+    // Route through the Anthropic-compatible MiniMax endpoint with an explicit
+    // regional base URL (global_en default, cn_zh via MINIMAX_REGION) and the
+    // session-header fetch wrapper for cache-affinity routing.
+    return createAnthropic({
       apiKey,
-      ...(reasoningFetch ? { fetch: reasoningFetch as typeof fetch } : {}),
+      baseURL: resolveMinimaxBaseURL(),
+      fetch: withSessionHeaders() as typeof fetch,
     })(modelId);
   },
 
@@ -35,26 +50,16 @@ export const minimax: ProviderDefinition = {
 
   fallbackModels: [
     { id: "MiniMax-M3", name: "MiniMax M3" },
-    { id: "MiniMax-M3-highspeed", name: "MiniMax M3 HighSpeed" },
     { id: "MiniMax-M2.7", name: "MiniMax M2.7" },
-    { id: "MiniMax-M2.7-highspeed", name: "MiniMax M2.7 HighSpeed" },
-    { id: "MiniMax-M2.5", name: "MiniMax M2.5" },
-    { id: "MiniMax-M2.5-highspeed", name: "MiniMax M2.5 HighSpeed" },
-    { id: "MiniMax-M2.1", name: "MiniMax M2.1" },
-    { id: "MiniMax-M2.1-highspeed", name: "MiniMax M2.1 Lightning" },
-    { id: "MiniMax-M2", name: "MiniMax M2" },
   ],
 
   // from https://platform.minimax.io/docs/api-reference/text-openai-api#supported-models
+  // M3 = 1M context, adaptive/disabled thinking; M2.7 = 204.8k, always-on thinking.
   contextWindows: [
     ["MiniMax-M3", 1_000_000],
-    ["MiniMax-M3-highspeed", 1_000_000],
     ["MiniMax-M2.7", 204_800],
-    ["MiniMax-M2.7-highspeed", 204_800],
     ["MiniMax-M2.5", 204_800],
-    ["MiniMax-M2.5-highspeed", 204_800],
     ["MiniMax-M2.1", 204_800],
-    ["MiniMax-M2.1-highspeed", 204_800],
     ["MiniMax-M2", 204_800],
   ],
 };

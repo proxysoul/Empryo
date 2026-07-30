@@ -21,7 +21,6 @@ const COMPAT_PROVIDERS = new Set([
   "deepseek",
   "groq",
   "fireworks",
-  "minimax",
   "copilot",
   "github-models",
   "opencode-go",

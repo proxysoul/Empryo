@@ -141,6 +141,12 @@ const MODEL_PRICING: Record<string, ModelPricing> = {
   ministral: { input: 0.1, cacheWrite: 0.1, cacheRead: 0.01, output: 0.1 },
   pixtral: { input: 0.15, cacheWrite: 0.15, cacheRead: 0.015, output: 0.15 },
   devstral: { input: 0.1, cacheWrite: 0.1, cacheRead: 0.01, output: 0.3 },
+
+  // ── MiniMax ──────────────────────────────────────────────────────────
+  // Source: https://platform.minimax.io/docs/api-reference/text-openai-api (2026-07)
+  // cacheRead = 20% of input; M3 cache-write is not billed (null → 0).
+  "minimax-m3": { input: 0.6, cacheWrite: 0, cacheRead: 0.12, output: 2.4 },
+  "minimax-m2.7": { input: 0.3, cacheWrite: 0.375, cacheRead: 0.06, output: 1.2 },
 };
 
 const FREE_PRICING: ModelPricing = { input: 0, cacheWrite: 0, cacheRead: 0, output: 0 };
@@ -298,6 +304,9 @@ function matchPricing(modelId: string): ModelPricing {
   if (id.includes("grok")) return MODEL_PRICING["grok-4.3"] ?? DEFAULT_PRICING;
   if (id.includes("gpt")) return MODEL_PRICING["gpt-5.4"] ?? DEFAULT_PRICING;
   if (id.includes("deepseek")) return MODEL_PRICING["deepseek-chat"] ?? DEFAULT_PRICING;
+  if (id.includes("minimax-m3")) return MODEL_PRICING["minimax-m3"] ?? DEFAULT_PRICING;
+  if (id.includes("minimax-m2.7")) return MODEL_PRICING["minimax-m2.7"] ?? DEFAULT_PRICING;
+  if (id.includes("minimax")) return MODEL_PRICING["minimax-m2.7"] ?? DEFAULT_PRICING;
   return DEFAULT_PRICING;
 }
 
