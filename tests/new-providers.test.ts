@@ -4,6 +4,7 @@ import { deepseek } from "../src/core/llm/providers/deepseek.js";
 import { mistral } from "../src/core/llm/providers/mistral.js";
 import { fireworks } from "../src/core/llm/providers/fireworks.js";
 import { bedrock } from "../src/core/llm/providers/bedrock.js";
+import { cerebras } from "../src/core/llm/providers/cerebras.js";
 import { getProvider, getAllProviders } from "../src/core/llm/providers/index.js";
 import { computeModelCost, isModelFree } from "../src/stores/statusbar.js";
 
@@ -16,10 +17,11 @@ describe("new providers registration", () => {
 		expect(getProvider("mistral")).toBeDefined();
 		expect(getProvider("bedrock")).toBeDefined();
 		expect(getProvider("fireworks")).toBeDefined();
+		expect(getProvider("cerebras")).toBeDefined();
 	});
 
 	test("all 5 have required fields", () => {
-		for (const id of ["groq", "deepseek", "mistral", "bedrock", "fireworks"]) {
+		for (const id of ["groq", "deepseek", "mistral", "bedrock", "fireworks", "cerebras"]) {
 			const p = getProvider(id)!;
 			expect(p.id).toBe(id);
 			expect(p.name).toBeTruthy();
@@ -37,8 +39,9 @@ describe("new providers registration", () => {
 
 	test("total builtin count increased by 5", () => {
 		const builtins = getAllProviders().filter((p) => !p.custom);
-		// Was 13, then 18 after the previous provider batch, now 22 with Codex + OpenCode + NIM.
-		expect(builtins.length).toBe(22);
+		// Was 13, then 18 after the previous provider batch, 22 with Codex + OpenCode + NIM,
+		// now 23 with Cerebras.
+		expect(builtins.length).toBe(23);
 	});
 });
 
@@ -188,6 +191,36 @@ describe("fetchModels parsing", () => {
 		}
 	});
 
+	test("cerebras: parses OpenAI-compatible response", async () => {
+		const envKey = "CEREBRAS_API_KEY";
+		process.env[envKey] = "test-key";
+		try {
+			globalThis.fetch = mock(() =>
+				Promise.resolve(
+					new Response(
+						JSON.stringify({
+							object: "list",
+							data: [
+								{ id: "qwen-3.8-27b", object: "model", created: 0, owned_by: "Cerebras" },
+								{ id: "gpt-oss-120b", object: "model", created: 0, owned_by: "Cerebras" },
+							],
+						}),
+						{ status: 200 },
+					),
+				),
+			) as any;
+
+			const models = await cerebras.fetchModels();
+			expect(models).not.toBeNull();
+			expect(models!.length).toBe(2);
+			expect(models![0].id).toBe("qwen-3.8-27b");
+			expect(models![0].name).toBe("qwen-3.8-27b");
+			expect(models![1].id).toBe("gpt-oss-120b");
+		} finally {
+			delete process.env[envKey];
+		}
+	});
+
 	test("bedrock: fetchModels returns null (no simple listing API)", async () => {
 		const models = await bedrock.fetchModels();
 		expect(models).toBeNull();
@@ -195,7 +228,13 @@ describe("fetchModels parsing", () => {
 
 	test("all providers return null when no API key", async () => {
 		// Ensure env vars are not set
-		const keys = ["GROQ_API_KEY", "DEEPSEEK_API_KEY", "MISTRAL_API_KEY", "FIREWORKS_API_KEY"];
+		const keys = [
+			"GROQ_API_KEY",
+			"DEEPSEEK_API_KEY",
+			"MISTRAL_API_KEY",
+			"FIREWORKS_API_KEY",
+			"CEREBRAS_API_KEY",
+		];
 		const saved: Record<string, string | undefined> = {};
 		for (const k of keys) {
 			saved[k] = process.env[k];
@@ -206,6 +245,7 @@ describe("fetchModels parsing", () => {
 			expect(await deepseek.fetchModels()).toBeNull();
 			expect(await mistral.fetchModels()).toBeNull();
 			expect(await fireworks.fetchModels()).toBeNull();
+			expect(await cerebras.fetchModels()).toBeNull();
 		} finally {
 			for (const k of keys) {
 				if (saved[k]) process.env[k] = saved[k];
@@ -223,6 +263,7 @@ describe("fetchModels parsing", () => {
 			[deepseek, "DEEPSEEK_API_KEY"],
 			[mistral, "MISTRAL_API_KEY"],
 			[fireworks, "FIREWORKS_API_KEY"],
+			[cerebras, "CEREBRAS_API_KEY"],
 		] as const) {
 			process.env[envKey] = "test-key";
 			try {

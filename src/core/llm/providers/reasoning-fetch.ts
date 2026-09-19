@@ -77,24 +77,55 @@ function applySessionHeaders(init: RequestInit | undefined): RequestInit | undef
   return { ...init, headers };
 }
 
+/** Rename a round-tripped `reasoning_content` to the field some endpoints use
+ *  instead (`reasoning`). Endpoints that are strict about unknown properties
+ *  reject `reasoning_content` on an assistant message with a 400 rather than
+ *  ignoring it, while accepting the same string under `reasoning`. Renaming
+ *  keeps the prior turn's reasoning in history; deleting it would drop context
+ *  the endpoint is happy to receive. */
+function renameAssistantReasoningContent(parsed: Record<string, unknown>): void {
+  const messages = parsed.messages;
+  if (!Array.isArray(messages)) return;
+  for (let i = 0; i < messages.length; i++) {
+    const message: unknown = messages[i];
+    if (!message || typeof message !== "object") continue;
+    const record = message as Record<string, unknown>;
+    if (!("reasoning_content" in record)) continue;
+    const { reasoning_content: value, ...rest } = record;
+    // A `reasoning` field already present wins — nothing to carry over.
+    if (!("reasoning" in rest) && typeof value === "string" && value.length > 0) {
+      rest.reasoning = value;
+    }
+    messages[i] = rest;
+  }
+}
+
 /** Wrap a fetch so every request carries the active chat's session headers,
  *  optionally composing with reasoning-body injection so a provider needs a
  *  single fetch override. Always returns a wrapper — session stamping applies
  *  to every provider regardless of reasoning config. Pass a `baseFetch` to wrap
- *  a non-global fetch (defaults to the global `fetch`). */
+ *  a non-global fetch (defaults to the global `fetch`).
+ *
+ *  `renameReasoningContent` additionally rewrites assistant-message reasoning
+ *  into the field name the endpoint expects (see above). Off by default, so
+ *  providers that require `reasoning_content` are untouched. */
 export function createSessionFetchWrapper(
   reasoningBody: Record<string, unknown> = {},
   baseFetch: ReasoningFetchFn = fetch,
+  options: { renameReasoningContent?: boolean } = {},
 ): ReasoningFetchFn {
   const hasReasoning = Object.keys(reasoningBody).length > 0;
+  const renameReasoning = options.renameReasoningContent === true;
 
   return async (input, init): Promise<Response> => {
     let nextInit = applySessionHeaders(init);
 
-    if (hasReasoning && nextInit?.body && typeof nextInit.body === "string") {
+    if ((hasReasoning || renameReasoning) && nextInit?.body && typeof nextInit.body === "string") {
       try {
         const parsed = JSON.parse(nextInit.body) as Record<string, unknown>;
-        nextInit = { ...nextInit, body: JSON.stringify({ ...parsed, ...reasoningBody }) };
+        if (renameReasoning) renameAssistantReasoningContent(parsed);
+        if (hasReasoning) Object.assign(parsed, reasoningBody);
+        nextInit = { ...nextInit, body: JSON.stringify(parsed) };
       } catch {}
     }
 

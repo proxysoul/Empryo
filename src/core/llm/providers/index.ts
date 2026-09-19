@@ -1,5 +1,6 @@
 export { anthropic } from "./anthropic.js";
 export { bedrock } from "./bedrock.js";
+export { cerebras } from "./cerebras.js";
 export { codex } from "./codex.js";
 export { copilot } from "./copilot.js";
 export { buildCustomProvider } from "./custom.js";
@@ -25,6 +26,7 @@ export { xai } from "./xai.js";
 
 import { anthropic } from "./anthropic.js";
 import { bedrock } from "./bedrock.js";
+import { cerebras } from "./cerebras.js";
 import { codex } from "./codex.js";
 import { copilot } from "./copilot.js";
 import { buildCustomProvider } from "./custom.js";
@@ -60,6 +62,7 @@ const BUILTIN_PROVIDERS: ProviderDefinition[] = [
   deepseek,
   mistral,
   bedrock,
+  cerebras,
   fireworks,
   minimax,
   nim,
