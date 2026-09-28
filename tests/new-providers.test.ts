@@ -37,8 +37,9 @@ describe("new providers registration", () => {
 
 	test("total builtin count increased by 5", () => {
 		const builtins = getAllProviders().filter((p) => !p.custom);
-		// Was 13, then 18 after the previous provider batch, now 22 with Codex + OpenCode + NIM.
-		expect(builtins.length).toBe(22);
+		// Was 13, then 18 after the previous provider batch, then 22 with Codex +
+		// OpenCode + NIM, now 23 with Atlas Cloud.
+		expect(builtins.length).toBe(23);
 	});
 });
 

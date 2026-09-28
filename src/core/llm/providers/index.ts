@@ -1,4 +1,5 @@
 export { anthropic } from "./anthropic.js";
+export { atlascloud } from "./atlascloud.js";
 export { bedrock } from "./bedrock.js";
 export { codex } from "./codex.js";
 export { copilot } from "./copilot.js";
@@ -24,6 +25,7 @@ export { vercelGatewayProvider } from "./vercel-gateway.js";
 export { xai } from "./xai.js";
 
 import { anthropic } from "./anthropic.js";
+import { atlascloud } from "./atlascloud.js";
 import { bedrock } from "./bedrock.js";
 import { codex } from "./codex.js";
 import { copilot } from "./copilot.js";
@@ -67,6 +69,7 @@ const BUILTIN_PROVIDERS: ProviderDefinition[] = [
   copilot,
   githubModels,
   openrouter,
+  atlascloud,
   opencodeZen,
   opencodeGo,
   ollama,
