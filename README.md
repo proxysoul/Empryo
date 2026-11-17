@@ -49,6 +49,8 @@ irm https://empryo.com/install.ps1 | iex          # Windows
 
 Desktop app and installers: [empryo.com/download](https://empryo.com/download) only.
 
+Then connect a model and prompt. Code intelligence works out of the box: Empryo maps your code, installs the language servers your project needs and detects your test, lint and typecheck commands in the background, once per project. Nothing to configure, nothing to wait for. [How it works](https://empryo.com/docs/concepts/intelligence)
+
 ## What it does
 
 - **It reads the map first.** It knows what an edit will touch before it makes it.

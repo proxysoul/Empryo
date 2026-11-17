@@ -1,8 +1,12 @@
 # Getting Started
 
-This guide walks you through setting up SoulForge for the first time. For a quick overview of what SoulForge does, see the [README](README.md).
+This guide covers SoulForge v2. For Empryo v3, read the [quickstart](https://empryo.com/docs/quickstart): install, connect a model and prompt. The code map, language servers and your project's test, lint and typecheck commands set themselves up in the background.
 
-## Prerequisites
+For a quick overview of what SoulForge does, see the [README](README.md).
+
+## Optional extras
+
+Only model access is required. Neovim and a Nerd Font are optional, and Bun is only needed for source installs.
 
 > If you're using the **prebuilt binary** or **Homebrew**, skip to [Neovim](#neovim) — Bun is not required.
 

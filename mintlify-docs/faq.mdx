@@ -74,13 +74,13 @@ Yes. Use it anywhere, anytime, for free — personal projects, startups, enterpr
 
 Tree-sitter detection covers: TypeScript, JavaScript, Python, Go, Rust, Java, Kotlin, Scala, C#, Swift, Dart, Elixir, OCaml, Lua, C, C++, Ruby, PHP, Zig, Bash, CSS, HTML, JSON, TOML, YAML, XML, Markdown, MDX, SQL, GraphQL, Protobuf, Dockerfile, Makefile, Nix, HCL/Terraform, Bazel/Starlark, Jsonnet, Vue, ReScript, Solidity, TLA+, Emacs Lisp, Objective-C.
 
-LSP coverage depends on what's installed via Mason — typical set: TypeScript, JavaScript, Python, Go, Rust, Java, Kotlin, Scala, C#, Swift, Dart, Elixir, OCaml, Lua, C, C++, Ruby, PHP, Zig, Bash, CSS, HTML, JSON, TOML, YAML, Dockerfile, Vue.
+Language servers with a known match: TypeScript, JavaScript, Python, Go, Rust, Java, Kotlin, Scala, C#, Swift, Dart, Elixir, OCaml, Lua, C, C++, Ruby, PHP, Zig, Bash, CSS, HTML, JSON, TOML, YAML, Dockerfile, Vue. Any other Mason package can be added.
 
 AST editing (ts-morph) is TypeScript and JavaScript only. Everything else uses LSP and tree-sitter.
 
-## Can I install LSP servers from SoulForge?
+## Do I have to install LSP servers?
 
-Yes. `/lsp install` opens a browser over Mason's registry (576+ packages). SoulForge installs into `~/.soulforge/lsp-servers/` via npm, pip, cargo, go, or GitHub releases depending on the package.
+No. Empryo v3 installs the servers for your project's languages in the background, with nothing to set up ([LSP servers](https://empryo.com/docs/tools/lsp)). To add others, `/lsp install` opens a browser over Mason's registry (576+ packages) and installs via npm, pip, cargo, go, or GitHub releases depending on the package.
 
 ## How do sessions work?
 
