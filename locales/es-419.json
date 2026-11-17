@@ -244,7 +244,7 @@
   "command.link.desc": "Salas y mensajes entre agentes; /link join <room> y /link say <room> <message>",
   "command.link.name": "enlace",
   "command.login-alibaba-coding-plan.desc": "Guardar la clave del plan de programación de Alibaba (Qwen), verificada en ambas regiones",
-  "command.login-alibaba-coding-plan.name": "loguearte-alibaba-programacion-plan",
+  "command.login-alibaba-coding-plan.name": "loguearte-alibaba-plan-codigo",
   "command.login-alibaba-token-plan.desc": "Guardar la clave del plan de tokens de Alibaba (Qwen), verificada en ambas regiones",
   "command.login-alibaba-token-plan.name": "loguearte-alibaba-token-plan",
   "command.login-claude.desc": "Iniciar sesión con una suscripción Claude Pro/Max (navegador)",
